@@ -2,27 +2,31 @@ pipeline {
     agent any
 
     environment {
-        IMAGE = "yourdockerhubusername/cicd-project"
+        IMAGE = "hafsa244/cicd-project"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/repo.git'
+                git branch: 'main', url: 'https://github.com/Hafsa244/Hafsa_CICD_Project.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE:latest ."
+                script {
+                    dockerImage = docker.build("${IMAGE}:${BUILD_NUMBER}")
+                }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'dockerhub-cred', url: '']) {
-                    sh "docker push $IMAGE:latest"
+                script {
+                    docker.withRegistry('', 'dockerhub-cred') {
+                        dockerImage.push()
+                    }
                 }
             }
         }
